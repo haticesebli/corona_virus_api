@@ -19,6 +19,7 @@
   "homepage": "https://github.com/haticesebli/corona_virus_api#readme",
   "dependencies": {
     "axios": "^0.19.2",
+    "express": "^4.17.1",
     "jsdom": "^16.2.2"
   }
 }
