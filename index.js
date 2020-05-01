@@ -30,7 +30,7 @@ app.listen(3000, () => {
 function getNodes(html) {
     const data = []; // Boş bir array oluşturuyoruz
     const dom = new JSDOM(html); // Yeni bir JSDOM instanceı alıyoruz
-    const numbers = dom.window.document.querySelectorAll('.maincounter-number span'); // dom'dan gelen nodelar arasında gezerek o modülün içerisindeki a etiketlerini çekiyorum.
+    const numbers = dom.window.document.querySelectorAll('.maincounter-number span'); // dom'dan gelen nodelar arasında gezerek o modülün içerisindeki maincounter classının icindeki span etiketlerini çekiyorum.
     const coronavirusCases = numbers[0].textContent;
     const deaths = numbers[1].textContent;
     const recovered = numbers[2].textContent;
