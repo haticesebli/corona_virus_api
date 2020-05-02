@@ -15,15 +15,18 @@ const server = http.createServer((req, res) => {
 app.get('/', (req, res, next) => {
     axios.get(url)
         .then(response => {
-            const countryCases = getCountryCases(response.data);
-            const mainCases = getMainCases(response.data);
+            const htmlData = response.data;
+            const countryCases = getCountryCases(htmlData);
+            const mainCases = getMainCases(htmlData);
             res.status(200).json({
                 mainCases: mainCases,
                 countryCases: countryCases
             });
         })
         .catch(error => {
-            console.error(error);
+            res.status(500).json({
+                error: error
+            })
         });
 });
 
@@ -48,11 +51,11 @@ function getMainCases(html) {
 }
 
 function getCountryCases(html) {
-    const data = []; // Boş bir array oluşturuyoruz
-    const dom = new JSDOM(html); // Yeni bir JSDOM instanceı alıyoruz
-    const rows = dom.window.document.querySelectorAll('.main_table_countries_div tbody tr'); // dom'dan gelen nodelar arasında gezerek o modülün içerisindeki maincounter classının icindeki span etiketlerini çekiyorum.
-    for (var i = 0; i < rows.length; i++) {
-        const cells = rows[i].cells;
+    const data = [];
+    const dom = new JSDOM(html);
+    const countries = dom.window.document.querySelectorAll('.main_table_countries_div tbody tr');
+    countries.forEach(function (country) {
+        const cells = country.cells;
         data.push({
             country: cells[0].textContent,
             totalCases: cells[1].textContent,
@@ -63,8 +66,7 @@ function getCountryCases(html) {
             activeCases: cells[6].textContent,
             serious: cells[7].textContent
         });
-    }
-    console.log(rows.length);
+    })
     return data;
 }
 
