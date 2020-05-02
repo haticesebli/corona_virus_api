@@ -13,27 +13,27 @@ const server = http.createServer((req, res) => {
 });
 
 app.get('/', (req, res, next) => {
-    res.send('Merhaba Dünya!');
     axios.get(url)
         .then(response => {
-            getNodes(response.data);
+            const countryCases = getCountryCases(response.data);
+            const mainCases = getMainCases(response.data);
+            res.status(200).json({
+                mainCases: mainCases,
+                countryCases: countryCases
+            });
         })
         .catch(error => {
             console.error(error);
         });
 });
 
-app.listen(3000, () => {
-    console.log('Uygulama çalıştırıldı...');
-});
-
-function getNodes(html) {
+function getMainCases(html) {
     const data = []; // Boş bir array oluşturuyoruz
     const dom = new JSDOM(html); // Yeni bir JSDOM instanceı alıyoruz
-    const numbers = dom.window.document.querySelectorAll('.maincounter-number span'); // dom'dan gelen nodelar arasında gezerek o modülün içerisindeki maincounter classının icindeki span etiketlerini çekiyorum.
-    const coronavirusCases = numbers[0].textContent;
-    const deaths = numbers[1].textContent;
-    const recovered = numbers[2].textContent;
+    const cases = dom.window.document.querySelectorAll('.maincounter-number span'); // dom'dan gelen nodelar arasında gezerek o modülün içerisindeki maincounter classının icindeki span etiketlerini çekiyorum.
+    const coronavirusCases = cases[0].textContent;
+    const deaths = cases[1].textContent;
+    const recovered = cases[2].textContent;
     data.push({
         title: "Corona Virus Cases",
         content: coronavirusCases
@@ -44,5 +44,30 @@ function getNodes(html) {
         title: "Recovered",
         content: recovered
     });
-    console.log(data); // Arrayin son halini yazdırıyorum. Burada elinize gelen data ile ne yapacağınız size kalmış :)
+    return data;
 }
+
+function getCountryCases(html) {
+    const data = []; // Boş bir array oluşturuyoruz
+    const dom = new JSDOM(html); // Yeni bir JSDOM instanceı alıyoruz
+    const rows = dom.window.document.querySelectorAll('.main_table_countries_div tbody tr'); // dom'dan gelen nodelar arasında gezerek o modülün içerisindeki maincounter classının icindeki span etiketlerini çekiyorum.
+    for (var i = 0; i < rows.length; i++) {
+        const cells = rows[i].cells;
+        data.push({
+            country: cells[0].textContent,
+            totalCases: cells[1].textContent,
+            newCases: cells[2].textContent,
+            totalDeaths: cells[3].textContent,
+            newDeaths: cells[4].textContent,
+            totalRecovered: cells[5].textContent,
+            activeCases: cells[6].textContent,
+            serious: cells[7].textContent
+        });
+    }
+    console.log(rows.length);
+    return data;
+}
+
+app.listen(3000, () => {
+    console.log('Uygulama çalıştırıldı...');
+});
